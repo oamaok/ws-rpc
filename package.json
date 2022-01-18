@@ -1,0 +1,23 @@
+{
+  "name": "ws-rpc",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oamaok/ws-rpc.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/oamaok/ws-rpc/issues"
+  },
+  "homepage": "https://github.com/oamaok/ws-rpc#readme",
+  "dependencies": {
+    "@types/websocket": "^1.0.4",
+    "websocket": "^1.0.34"
+  }
+}

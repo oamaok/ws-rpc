@@ -1,16 +1,46 @@
-import {
-  createApi,
-  CreateApiInterfaceType,
-  CreateApiResponseType,
-  CreateApiRequestType,
-} from '../../lib/createApi'
+import { server as WebSocketServer } from "websocket";
+import { readFile } from "fs/promises";
+import { resolve } from "path";
+import { createServer } from "http";
+import { api } from "./api";
 
-const api = createApi({
-  
-})
+const isLocalhost = (url: string) => new URL(url).hostname === "localhost";
 
-type ApiInterface = CreateApiInterfaceType<typeof api>
-type ApiResponse = CreateApiResponseType<typeof api>
-type ApiRequest = CreateApiRequestType<typeof api>
+const server = createServer(async (req, res) => {
+  if (!isLocalhost(`http://${req.headers.host}`)) {
+    console.log(`[http] Request rejected (host: ${req.headers.host})`);
+    res.end("403");
+    return;
+  }
 
-export { api, ApiInterface, ApiResponse, ApiRequest }
+  const [/* style, */ script] = await Promise.all([
+    // readFile(resolve(__dirname, '../dist/main.css')),
+    readFile(resolve(__dirname, "../dist/index.js")),
+  ]);
+
+  res.setHeader("Content-Type", "text/html");
+  res.end(
+    `<!DOCTYPE html><html><head><style>${""}</style></head><body><script>${script}</script></body></html>`
+  );
+});
+
+server.listen(3000, () => console.log("[http] Running (:3000)"));
+
+const ws = new WebSocketServer({
+  httpServer: server,
+  autoAcceptConnections: false,
+});
+
+ws.on("request", (req) => {
+  console.log("[ws] Connection from", req.origin);
+
+  if (!isLocalhost(req.origin)) {
+    req.reject();
+    console.log("[ws] Connection rejected");
+    return;
+  }
+
+  const connection = req.accept();
+  console.log("[ws] Connection accepted");
+  api(connection);
+});
